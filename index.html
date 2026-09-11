@@ -27,8 +27,12 @@
   body { background: #F9FAFB; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   .table-viajes input { width: 100%; font-size: .875rem; padding: 4px 8px; border: 1px solid #E5E7EB; border-radius: 6px; }
   .table-viajes input:focus { outline: none; border-color: #E8452B; box-shadow: 0 0 0 3px rgba(232,69,43,.15); }
-  .chip { display: inline-flex; align-items: center; gap: 4px; background: #FDE4DE; color: #B02018; border-radius: 9999px; padding: 2px 10px; font-size: .75rem; margin: 2px; }
-  .chip button { border: none; background: none; color: #B02018; font-weight: 700; cursor: pointer; line-height: 1; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 9999px; padding: 2px 8px 2px 6px; font-size: .72rem; margin: 2px; font-weight: 600; }
+  .chip-chofer { background: #FDE4DE; color: #B02018; }
+  .chip-enfermera { background: #FFEDD5; color: #C2410C; }
+  .chip-medico { background: #D1FAE5; color: #047857; }
+  .chip button { border: none; background: none; font-weight: 700; cursor: pointer; line-height: 1; opacity: .6; }
+  .chip button:hover { opacity: 1; }
   .recibo { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #F3F4F6; }
   .firma { margin-top: 60px; display: flex; justify-content: space-around; }
   .firma div { border-top: 1px solid #9CA3AF; width: 200px; text-align: center; padding-top: 6px; font-size: .8rem; color: #6B7280; }
@@ -37,6 +41,15 @@
   .resumen-tabla thead th { background: #F3F4F6; font-weight: 700; text-align: left; }
   .resumen-tabla tfoot td { background: #FDE4DE; font-weight: 700; color: #8E1A15; }
   .icon { width: 16px; height: 16px; display: inline-block; vertical-align: -3px; }
+  .icon-xs { width: 12px; height: 12px; display: inline-block; vertical-align: -2px; }
+  .rol-btn { flex:1; padding: 8px; border-radius: 8px; border: 2px solid #E5E7EB; background: #fff; font-size: .8rem; font-weight: 600; color: #6B7280; transition: all .15s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .rol-btn:hover { border-color: #D1D5DB; }
+  .rol-btn.active.rol-chofer { border-color: #D32F1F; background: #FDE4DE; color: #B02018; }
+  .rol-btn.active.rol-enfermera { border-color: #EA580C; background: #FFEDD5; color: #C2410C; }
+  .rol-btn.active.rol-medico { border-color: #047857; background: #D1FAE5; color: #047857; }
+  .sugerencias { position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #E5E7EB; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,.08); max-height: 180px; overflow-y: auto; z-index: 100; margin-top: 4px; }
+  .sugerencia-item { padding: 8px 12px; cursor: pointer; font-size: .85rem; color: #374151; }
+  .sugerencia-item:hover, .sugerencia-item.activo { background: #FDE4DE; color: #B02018; font-weight: 600; }
   @media print {
     body { background: #fff; }
     .no-print { display: none !important; }
@@ -62,21 +75,14 @@
         <div class="text-xs text-white/80">Sistema de Viáticos — San Cristóbal</div>
       </div>
     </div>
-    <div class="flex gap-2">
-
-        
-        <!--BOTON-->
-        <a href="PRUEBA.xlsx" download="Plantilla_Viaticos.xlsx"
-   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-    <polyline points="7 10 12 15 17 10"/>
-    <line x1="12" y1="15" x2="12" y2="3"/>
-  </svg>
-  Descargar plantilla
-</a>
-      <button onclick="abrirImportExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
+    <div class="flex gap-2 flex-wrap">
+      <a href="PRUEBA.xlsx" download="Plantilla_Viaticos.xlsx"
+         class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar plantilla
+      </a>
+      <button onclick="abrirImportExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Importar Excel
       </button>
       <button onclick="exportarJSON()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
@@ -88,13 +94,16 @@
         Importar JSON
       </button>
       <input type="file" id="inputImport" accept=".json" class="hidden" onchange="importarJSON(event)">
+      <button onclick="vaciarTodo()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        Vaciar todo
+      </button>
     </div>
   </div>
 </header>
 
 <main class="max-w-[1400px] mx-auto px-6 py-6">
 
-  <!-- CONFIG -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-5 no-print">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
@@ -115,29 +124,17 @@
     </div>
   </div>
 
-  <!-- TABS -->
   <div class="flex border-b border-gray-200 mb-5 no-print">
-    <button id="btnTabViajes" onclick="cambiarTab('viajes')"
-            class="px-5 py-2.5 text-sm font-semibold border-b-2 border-brand-600 text-brand-700 -mb-px transition">
-      Viajes
-    </button>
-    <button id="btnTabRecibos" onclick="cambiarTab('recibos')"
-            class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 -mb-px transition">
-      Recibos
-    </button>
-    <button id="btnTabResumen" onclick="cambiarTab('resumen')"
-            class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 -mb-px transition">
-      Resumen
-    </button>
+    <button id="btnTabViajes" onclick="cambiarTab('viajes')" class="px-5 py-2.5 text-sm font-semibold border-b-2 border-brand-600 text-brand-700 -mb-px transition">Viajes</button>
+    <button id="btnTabRecibos" onclick="cambiarTab('recibos')" class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 -mb-px transition">Recibos</button>
+    <button id="btnTabResumen" onclick="cambiarTab('resumen')" class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 -mb-px transition">Resumen</button>
   </div>
 
-  <!-- TAB VIAJES -->
   <div id="tabViajes">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
       <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
         <h2 class="font-semibold text-gray-800">Carga de viajes</h2>
-        <button onclick="agregarViaje()"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
+        <button onclick="agregarViaje()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Agregar viaje
         </button>
@@ -163,7 +160,6 @@
       <div id="emptyViajes" class="text-center py-16 text-gray-400 text-sm">
         No hay viajes cargados. Usá <strong class="text-gray-600">"Agregar viaje"</strong> o <strong class="text-gray-600">"Importar Excel"</strong>.
       </div>
-      <!-- RESUMEN DE MONTOS EN VIAJES -->
       <div id="resumenViajes" class="hidden border-t-2 border-brand-100 bg-gradient-to-r from-brand-50 to-warm-50 px-5 py-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="flex items-center gap-3">
@@ -198,12 +194,10 @@
     </div>
   </div>
 
-  <!-- TAB RECIBOS -->
   <div id="tabRecibos" class="hidden">
     <div class="flex items-center justify-between mb-4 no-print">
       <h2 class="font-semibold text-gray-800 text-lg">Recibos generados</h2>
-      <button onclick="imprimirTodos()"
-              class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
+      <button onclick="imprimirTodos()" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Imprimir todos
       </button>
@@ -211,12 +205,10 @@
     <div id="contenedorRecibos"></div>
   </div>
 
-  <!-- TAB RESUMEN -->
   <div id="tabResumen" class="hidden">
     <div class="flex items-center justify-between mb-4 no-print">
       <h2 class="font-semibold text-gray-800 text-lg">Relación de gastos</h2>
-      <button onclick="imprimirResumen()"
-              class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
+      <button onclick="imprimirResumen()" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Imprimir resumen
       </button>
@@ -228,28 +220,50 @@
 
 <!-- MODAL TRIPULACIÓN -->
 <div id="modalTripulacion" class="hidden fixed inset-0 z-50 items-center justify-center p-4" style="background: rgba(0,0,0,.5)">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
       <h3 class="font-semibold text-gray-800">Tripulación del viaje</h3>
       <button onclick="cerrarModalTrip()" class="text-gray-400 hover:text-gray-600">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
+    <div id="infoViajeTrip" class="px-5 py-2 bg-brand-50 text-xs text-brand-800 border-b border-brand-100"></div>
     <div class="p-5">
-      <div id="chipsTripulacion" class="mb-4 min-h-[40px]"></div>
-      <div class="flex gap-2">
-        <input type="text" id="inputNombreTrip" placeholder="Nombre del profesional"
-               onkeydown="if(event.key==='Enter'){event.preventDefault();agregarTripulante();}"
-               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm">
-        <button onclick="agregarTripulante()"
-                class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition">
-          Agregar
-        </button>
-
-
-        
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Rol del profesional</label>
+        <div class="flex gap-2">
+          <button type="button" class="rol-btn rol-chofer active" data-rol="chofer" onclick="seleccionarRol('chofer')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+            Chofer
+          </button>
+          <button type="button" class="rol-btn rol-enfermera" data-rol="enfermera" onclick="seleccionarRol('enfermera')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>
+            Enfermera
+          </button>
+          <button type="button" class="rol-btn rol-medico" data-rol="medico" onclick="seleccionarRol('medico')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+            Médico
+          </button>
+        </div>
       </div>
-      <p class="text-xs text-gray-500 mt-2">Presioná Enter o el botón para agregar.</p>
+      <div class="mb-2">
+        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Tripulantes asignados</label>
+        <div id="chipsTripulacion" class="min-h-[44px] p-2 border border-dashed border-gray-200 rounded-lg bg-gray-50"></div>
+      </div>
+      <div class="mt-3">
+        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Agregar profesional</label>
+        <div class="flex gap-2 relative">
+          <div class="flex-1 relative">
+            <input type="text" id="inputNombreTrip" placeholder="Nombre del profesional" autocomplete="off"
+                   oninput="actualizarSugerencias()" onkeydown="manejarTeclasInput(event)" onfocus="actualizarSugerencias()"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm uppercase">
+            <div id="sugerenciasBox" class="sugerencias hidden"></div>
+          </div>
+          <button onclick="agregarTripulante()" class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition">Agregar</button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">Presioná Enter o el botón. Escribí para ver sugerencias de nombres ya usados.</p>
+      </div>
+      <div id="msgTripError" class="hidden mt-3 p-2 bg-red-50 border border-red-200 text-red-700 rounded text-xs"></div>
     </div>
     <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
       <button onclick="cerrarModalTrip()" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition">Cerrar</button>
@@ -259,7 +273,7 @@
 
 <!-- MODAL IMPORTAR EXCEL -->
 <div id="modalImportExcel" class="hidden fixed inset-0 z-50 items-center justify-center p-4" style="background: rgba(0,0,0,.5)">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
       <h3 class="font-semibold text-gray-800">Importar Excel de Viáticos</h3>
       <button onclick="cerrarModalImport()" class="text-gray-400 hover:text-gray-600">
@@ -273,7 +287,6 @@
                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
         <div id="mensajeExcel" class="mt-3"></div>
       </div>
-
       <div id="paso2Preview" class="hidden">
         <div class="bg-brand-50 border border-brand-200 rounded-lg p-3 mb-4 text-sm text-brand-900">
           <strong>Vista previa:</strong> se detectaron <span id="cantViajes" class="font-bold">0</span> viajes en la hoja <strong id="hojaDetectada">—</strong>.
@@ -310,20 +323,80 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
+// ============================================================
+// ESTADO
+// ============================================================
 let estado = { mes: "", cuota: 0, viajes: [] };
 let viajeEditandoTrip = null;
+let rolSeleccionado = 'chofer';
 let viajesImportados = null;
+let sugerenciaActiva = -1;
 const nombresMeses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const ROLES = {
+  chofer:    { label: 'Chofer',    icono: 'car',        chipClass: 'chip-chofer' },
+  enfermera: { label: 'Enfermera', icono: 'heart',      chipClass: 'chip-enfermera' },
+  medico:    { label: 'Médico',    icono: 'stethoscope',chipClass: 'chip-medico' }
+};
+const SVG_ROLES = {
+  chofer:    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-xs"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>',
+  enfermera: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-xs"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>',
+  medico:    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-xs"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>'
+};
 
+// ============================================================
+// PERSISTENCIA + MIGRACIÓN
+// ============================================================
 function guardar() { localStorage.setItem('viaticos_estado', JSON.stringify(estado)); }
 function cargar() {
   const raw = localStorage.getItem('viaticos_estado');
-  if (raw) { try { estado = JSON.parse(raw); } catch(e) {} }
+  if (raw) {
+    try {
+      estado = JSON.parse(raw);
+      if (estado.viajes) {
+        estado.viajes.forEach(v => {
+          if (Array.isArray(v.tripulacion)) {
+            v.tripulacion = v.tripulacion.map(t => {
+              if (typeof t === 'string') return { nombre: t, rol: 'chofer' };
+              if (t && typeof t === 'object' && t.nombre) return t;
+              return null;
+            }).filter(Boolean);
+          }
+        });
+      }
+    } catch(e) { console.warn('Error cargando estado', e); }
+  }
   document.getElementById('cfgMes').value = estado.mes || '';
   document.getElementById('cfgCuota').value = estado.cuota || '';
 }
 
+// ============================================================
+// VACIAR TODO
+// ============================================================
+function vaciarTodo() {
+  if (!confirm('¿Estás seguro? Se van a borrar TODOS los viajes, la configuración de mes y cuota, y todo lo guardado en el navegador.\n\nEsta acción NO se puede deshacer.')) return;
+  // Reset del estado en memoria
+  estado = { mes: "", cuota: 0, viajes: [] };
+  // Limpiar localStorage
+  localStorage.removeItem('viaticos_estado');
+  // Limpiar campos de configuración
+  document.getElementById('cfgMes').value = '';
+  document.getElementById('cfgCuota').value = '';
+  // Resetear estado auxiliar de modales
+  viajeEditandoTrip = null;
+  viajesImportados = null;
+  sugerenciaActiva = -1;
+  rolSeleccionado = 'chofer';
+  // Re-renderizar todo
+  renderViajes();
+  renderRecibos();
+  renderResumen();
+  // Mensaje de confirmación
+  alert('✅ Todo fue vaciado correctamente.');
+}
+
+// ============================================================
 // TABS
+// ============================================================
 function cambiarTab(tab) {
   const btnV = document.getElementById('btnTabViajes');
   const btnR = document.getElementById('btnTabRecibos');
@@ -346,6 +419,9 @@ function actualizarConfig() {
   guardar(); renderViajes(); renderRecibos(); renderResumen();
 }
 
+// ============================================================
+// CÁLCULOS
+// ============================================================
 function calcularDias(horaSalida, horaRegreso) {
   if (!horaSalida || !horaRegreso) return 0;
   const [hS, mS] = horaSalida.split(':').map(Number);
@@ -357,6 +433,9 @@ function calcularDias(horaSalida, horaRegreso) {
 }
 function calcularImporte(dias) { return (estado.cuota || 0) * dias; }
 
+// ============================================================
+// VIAJES
+// ============================================================
 function agregarViaje() {
   estado.viajes.push({ fecha:'', destino:'', mision:'', horaSalida:'', horaRegreso:'', tripulacion:[] });
   guardar(); renderViajes();
@@ -366,13 +445,11 @@ function agregarViaje() {
     if (ultima) ultima.querySelector('input')?.focus();
   }, 50);
 }
-
 function eliminarViaje(idx) {
   if (!confirm('¿Eliminar este viaje?')) return;
   estado.viajes.splice(idx, 1);
   guardar(); renderViajes(); renderRecibos(); renderResumen();
 }
-
 function actualizarCampo(idx, campo, valor) {
   estado.viajes[idx][campo] = valor;
   guardar();
@@ -391,7 +468,11 @@ function actualizarCampo(idx, campo, valor) {
   actualizarResumenViajes();
   renderRecibos(); renderResumen();
 }
-
+function renderChipTripulante(t, idxViaje, i) {
+  const rol = ROLES[t.rol] || ROLES.chofer;
+  const svg = SVG_ROLES[t.rol] || SVG_ROLES.chofer;
+  return `<span class="chip ${rol.chipClass}" title="${rol.label}">${svg}<span>${escapeHtml(t.nombre)}</span><button onclick="quitarTripulante(${idxViaje},${i})">×</button></span>`;
+}
 function renderViajes() {
   const tbody = document.getElementById('tbodyViajes');
   const empty = document.getElementById('emptyViajes');
@@ -420,7 +501,7 @@ function renderViajes() {
       <td class="celda-importe px-3 py-2 text-right font-medium text-gray-700">${imp ? formatearMoneda(imp) : '—'}</td>
       <td class="px-3 py-2">
         <div class="flex flex-wrap items-center gap-1">
-          ${v.tripulacion.map((n, i) => `<span class="chip">${escapeHtml(n)} <button onclick="quitarTripulante(${idx},${i})">×</button></span>`).join('')}
+          ${v.tripulacion.map((t, i) => renderChipTripulante(t, idx, i)).join('')}
           <button onclick="abrirModalTripulacion(${idx})" class="w-7 h-7 rounded-full bg-brand-100 hover:bg-brand-200 text-brand-700 font-bold text-sm transition" title="Agregar tripulante">+</button>
         </div>
       </td>
@@ -434,7 +515,6 @@ function renderViajes() {
   });
   actualizarResumenViajes();
 }
-
 function actualizarResumenViajes() {
   let totalDias = 0, totalImporte = 0;
   estado.viajes.forEach(v => {
@@ -447,33 +527,160 @@ function actualizarResumenViajes() {
   document.getElementById('totalImporte').textContent = formatearMoneda(totalImporte);
 }
 
-// TRIPULACIÓN
+// ============================================================
+// MODAL TRIPULACIÓN
+// ============================================================
 function abrirModalTripulacion(idx) {
   viajeEditandoTrip = idx;
+  rolSeleccionado = 'chofer';
+  actualizarBotonesRol();
   renderChipsTripulacion();
+  renderInfoViaje();
   document.getElementById('inputNombreTrip').value = '';
+  document.getElementById('msgTripError').classList.add('hidden');
+  ocultarSugerencias();
   const modal = document.getElementById('modalTripulacion');
   modal.classList.remove('hidden'); modal.classList.add('flex');
+  modal.onclick = (e) => { if (e.target === modal) cerrarModalTrip(); };
   setTimeout(() => document.getElementById('inputNombreTrip').focus(), 100);
 }
 function cerrarModalTrip() {
   const modal = document.getElementById('modalTripulacion');
   modal.classList.add('hidden'); modal.classList.remove('flex');
   viajeEditandoTrip = null;
+  ocultarSugerencias();
+}
+function renderInfoViaje() {
+  const v = estado.viajes[viajeEditandoTrip];
+  if (!v) return;
+  const partes = [];
+  if (v.destino) partes.push(v.destino);
+  if (v.mision) partes.push(v.mision);
+  if (v.fecha) partes.push(formatearFecha(v.fecha));
+  if (v.horaSalida && v.horaRegreso) partes.push(`${v.horaSalida} → ${v.horaRegreso}`);
+  document.getElementById('infoViajeTrip').innerHTML = partes.length
+    ? '<strong>Editando:</strong> ' + escapeHtml(partes.join(' — '))
+    : '<em class="text-brand-600/70">Viaje sin datos cargados aún.</em>';
+}
+function seleccionarRol(rol) {
+  rolSeleccionado = rol;
+  actualizarBotonesRol();
+  document.getElementById('inputNombreTrip').focus();
+}
+function actualizarBotonesRol() {
+  document.querySelectorAll('.rol-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.rol === rolSeleccionado);
+  });
 }
 function renderChipsTripulacion() {
   const cont = document.getElementById('chipsTripulacion');
   const trip = estado.viajes[viajeEditandoTrip]?.tripulacion || [];
-  if (trip.length === 0) { cont.innerHTML = '<span class="text-gray-400 text-sm">Sin tripulantes aún.</span>'; return; }
-  cont.innerHTML = trip.map((n, i) => `<span class="chip" style="font-size:.85rem;padding:4px 12px">${escapeHtml(n)} <button onclick="quitarTripulante(${viajeEditandoTrip},${i},true)">×</button></span>`).join('');
+  if (trip.length === 0) {
+    cont.innerHTML = '<span class="text-gray-400 text-xs">Sin tripulantes aún. Agregá al menos el chofer.</span>';
+    return;
+  }
+  const porRol = { chofer: [], enfermera: [], medico: [] };
+  trip.forEach((t, i) => {
+    if (!porRol[t.rol]) porRol[t.rol] = [];
+    porRol[t.rol].push({ ...t, _idx: i });
+  });
+  let html = '';
+  ['chofer', 'enfermera', 'medico'].forEach(rol => {
+    if (porRol[rol] && porRol[rol].length) {
+      const info = ROLES[rol];
+      const svg = SVG_ROLES[rol];
+      html += `<div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold uppercase tracking-wide text-gray-500 w-20">${info.label}</span><div class="flex flex-wrap gap-1">`;
+      html += porRol[rol].map(t =>
+        `<span class="chip ${info.chipClass}" style="font-size:.8rem;padding:3px 10px 3px 8px">${svg}<span>${escapeHtml(t.nombre)}</span><button onclick="quitarTripulante(${viajeEditandoTrip},${t._idx},true)">×</button></span>`
+      ).join('');
+      html += `</div></div>`;
+    }
+  });
+  cont.innerHTML = html;
+}
+function obtenerNombresUsados() {
+  const set = new Set();
+  estado.viajes.forEach(v => {
+    (v.tripulacion || []).forEach(t => { if (t.nombre) set.add(t.nombre); });
+  });
+  return Array.from(set).sort();
+}
+function actualizarSugerencias() {
+  const input = document.getElementById('inputNombreTrip');
+  const box = document.getElementById('sugerenciasBox');
+  const valor = input.value.trim().toUpperCase();
+  const usados = obtenerNombresUsados();
+  const tripActual = estado.viajes[viajeEditandoTrip]?.tripulacion || [];
+  const yaEnEsteViaje = new Set(tripActual.filter(t => t.rol === rolSeleccionado).map(t => t.nombre));
+  let sugerencias = usados.filter(n => !yaEnEsteViaje.has(n));
+  if (valor) sugerencias = sugerencias.filter(n => n.toUpperCase().includes(valor));
+  if (sugerencias.length === 0) { ocultarSugerencias(); return; }
+  box.innerHTML = sugerencias.slice(0, 8).map((n, i) =>
+    `<div class="sugerencia-item${i === sugerenciaActiva ? ' activo' : ''}" onclick="elegirSugerencia('${escapeAttr(n)}')">${escapeHtml(n)}</div>`
+  ).join('');
+  box.classList.remove('hidden');
+}
+function ocultarSugerencias() {
+  document.getElementById('sugerenciasBox').classList.add('hidden');
+  sugerenciaActiva = -1;
+}
+function elegirSugerencia(nombre) {
+  document.getElementById('inputNombreTrip').value = nombre;
+  ocultarSugerencias();
+  document.getElementById('inputNombreTrip').focus();
+}
+function manejarTeclasInput(event) {
+  const box = document.getElementById('sugerenciasBox');
+  const visible = !box.classList.contains('hidden');
+  const items = box.querySelectorAll('.sugerencia-item');
+  if (event.key === 'ArrowDown' && visible) {
+    event.preventDefault();
+    sugerenciaActiva = Math.min(sugerenciaActiva + 1, items.length - 1);
+    actualizarSugerencias();
+  } else if (event.key === 'ArrowUp' && visible) {
+    event.preventDefault();
+    sugerenciaActiva = Math.max(sugerenciaActiva - 1, 0);
+    actualizarSugerencias();
+  } else if (event.key === 'Enter') {
+    event.preventDefault();
+    if (visible && sugerenciaActiva >= 0 && items[sugerenciaActiva]) {
+      elegirSugerencia(items[sugerenciaActiva].textContent);
+      sugerenciaActiva = -1;
+    } else {
+      agregarTripulante();
+    }
+  } else if (event.key === 'Escape') {
+    if (visible) { ocultarSugerencias(); event.stopPropagation(); }
+  }
 }
 function agregarTripulante() {
   const input = document.getElementById('inputNombreTrip');
-  const nombre = input.value.trim();
-  if (!nombre || viajeEditandoTrip === null) return;
-  estado.viajes[viajeEditandoTrip].tripulacion.push(nombre);
-  input.value = ''; input.focus();
-  guardar(); renderChipsTripulacion(); renderViajes(); renderRecibos(); renderResumen();
+  const msg = document.getElementById('msgTripError');
+  const nombre = input.value.trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!nombre) return;
+  if (viajeEditandoTrip === null) return;
+  const trip = estado.viajes[viajeEditandoTrip].tripulacion;
+  const dup = trip.some(t => t.nombre === nombre && t.rol === rolSeleccionado);
+  if (dup) {
+    msg.textContent = `${nombre} ya está cargado como ${ROLES[rolSeleccionado].label} en este viaje.`;
+    msg.classList.remove('hidden');
+    setTimeout(() => msg.classList.add('hidden'), 3000);
+    return;
+  }
+  const otroRol = trip.find(t => t.nombre === nombre && t.rol !== rolSeleccionado);
+  if (otroRol) {
+    msg.textContent = `${nombre} ya está cargado en este viaje como ${ROLES[otroRol.rol].label}.`;
+    msg.classList.remove('hidden');
+    setTimeout(() => msg.classList.add('hidden'), 3000);
+    return;
+  }
+  trip.push({ nombre, rol: rolSeleccionado });
+  input.value = '';
+  input.focus();
+  msg.classList.add('hidden');
+  guardar();
+  renderChipsTripulacion();
+  renderViajes(); renderRecibos(); renderResumen();
 }
 function quitarTripulante(idx, i, desdeModal) {
   estado.viajes[idx].tripulacion.splice(i, 1);
@@ -482,21 +689,27 @@ function quitarTripulante(idx, i, desdeModal) {
   renderViajes(); renderRecibos(); renderResumen();
 }
 
-// AGRUPAR POR PROFESIONAL
+// ============================================================
+// AGRUPAR
+// ============================================================
 function agruparPorProfesional() {
   const porProfesional = {};
   estado.viajes.forEach(v => {
     const dias = calcularDias(v.horaSalida, v.horaRegreso);
     const imp = calcularImporte(dias);
-    (v.tripulacion || []).forEach(nombre => {
-      if (!porProfesional[nombre]) porProfesional[nombre] = [];
-      porProfesional[nombre].push({ ...v, dias, importe: imp });
+    (v.tripulacion || []).forEach(t => {
+      const nombre = t.nombre;
+      if (!porProfesional[nombre]) porProfesional[nombre] = { viajes: [], roles: new Set() };
+      porProfesional[nombre].viajes.push({ ...v, dias, importe: imp, rol: t.rol });
+      porProfesional[nombre].roles.add(t.rol);
     });
   });
   return porProfesional;
 }
 
+// ============================================================
 // RECIBOS
+// ============================================================
 function renderRecibos() {
   const cont = document.getElementById('contenedorRecibos');
   cont.innerHTML = '';
@@ -507,8 +720,10 @@ function renderRecibos() {
     return;
   }
   nombres.forEach(nombre => {
-    const viajes = porProfesional[nombre];
+    const data = porProfesional[nombre];
+    const viajes = data.viajes;
     const total = viajes.reduce((s, v) => s + v.importe, 0);
+    const rolesTexto = Array.from(data.roles).map(r => ROLES[r]?.label || r).join(' / ');
     const recibo = document.createElement('div');
     recibo.className = 'recibo';
     recibo.innerHTML = `
@@ -525,6 +740,7 @@ function renderRecibos() {
       </div>
       <div class="mb-4 text-sm">
         <div><strong>Profesional:</strong> ${escapeHtml(nombre)}</div>
+        <div><strong>Rol:</strong> ${escapeHtml(rolesTexto)}</div>
         <div><strong>Cuota:</strong> ${formatearMoneda(estado.cuota)}</div>
       </div>
       <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
@@ -568,7 +784,6 @@ function renderRecibos() {
     cont.appendChild(recibo);
   });
 }
-
 function imprimirRecibo(btn) {
   const recibo = btn.closest('.recibo');
   const original = document.body.innerHTML;
@@ -579,27 +794,29 @@ function imprimirRecibo(btn) {
 }
 function imprimirTodos() { window.print(); }
 
+// ============================================================
 // RESUMEN
+// ============================================================
 function renderResumen() {
   const cont = document.getElementById('contenedorResumen');
   const porProfesional = agruparPorProfesional();
   const nombres = Object.keys(porProfesional).sort();
-
   if (nombres.length === 0) {
     cont.innerHTML = '<div class="text-center py-16 text-gray-400 text-sm">No hay datos para mostrar en el resumen. Cargá viajes y asigná tripulación.</div>';
     return;
   }
-
   const fechaStr = fechaFinalDelMes(estado.mes);
   const periodo = estado.mes ? `Viáticos ${estado.mes.toUpperCase()}` : 'Viáticos —';
   let totalGeneral = 0;
-
   const filas = nombres.map(nombre => {
-    const total = porProfesional[nombre].reduce((s, v) => s + v.importe, 0);
+    const data = porProfesional[nombre];
+    const total = data.viajes.reduce((s, v) => s + v.importe, 0);
     totalGeneral += total;
+    const rolesTexto = Array.from(data.roles).map(r => ROLES[r]?.label || r).join(' / ');
     return `
       <tr>
         <td>${escapeHtml(nombre)}</td>
+        <td class="text-xs text-gray-600">${escapeHtml(rolesTexto)}</td>
         <td>${fechaStr}</td>
         <td>Planilla de viáticos</td>
         <td></td>
@@ -608,27 +825,26 @@ function renderResumen() {
       </tr>
     `;
   }).join('');
-
   cont.innerHTML = `
     <div class="overflow-x-auto">
       <table class="resumen-tabla">
         <thead>
           <tr>
-            <th colspan="6" class="text-center text-sm" style="background:#fff;border:none;padding-bottom:12px;font-size:1rem;">
+            <th colspan="7" class="text-center text-sm" style="background:#fff;border:none;padding-bottom:12px;font-size:1rem;">
               RELACIÓN DE GASTOS PARA HOSPITAL JULIO CÉSAR VILLANUEVA
             </th>
           </tr>
           <tr>
-            <th colspan="2" style="width:33%">DE SAN CRISTÓBAL</th>
-            <th colspan="2" style="width:33%">PARTIDA PARCIAL</th>
-            <th colspan="2" style="width:34%"></th>
+            <th colspan="2" style="width:28%">DE SAN CRISTÓBAL</th>
+            <th colspan="2" style="width:28%">PARTIDA PARCIAL</th>
+            <th colspan="3" style="width:44%"></th>
           </tr>
           <tr>
             <td>Racionamiento</td>
             <td></td>
             <td rowspan="3"></td>
             <td rowspan="3"></td>
-            <td rowspan="3" colspan="2" class="text-center align-middle"><strong>${periodo}</strong></td>
+            <td rowspan="3" colspan="3" class="text-center align-middle"><strong>${periodo}</strong></td>
           </tr>
           <tr>
             <td>Bienes</td>
@@ -640,6 +856,7 @@ function renderResumen() {
           </tr>
           <tr>
             <th style="background:#F3F4F6">PROVEEDOR</th>
+            <th style="background:#F3F4F6">ROL</th>
             <th style="background:#F3F4F6">FECHA</th>
             <th style="background:#F3F4F6">COMPROBANTE</th>
             <th style="background:#F3F4F6">NRO.CHEQUE</th>
@@ -652,7 +869,7 @@ function renderResumen() {
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="5" class="text-right">TOTAL</td>
+            <td colspan="6" class="text-right">TOTAL</td>
             <td class="text-right">${formatearMoneda(totalGeneral)}</td>
           </tr>
         </tfoot>
@@ -665,7 +882,6 @@ function renderResumen() {
     </div>
   `;
 }
-
 function fechaFinalDelMes(mesTexto) {
   if (!mesTexto) return '';
   const m = mesTexto.match(/([A-Za-zÁÉÍÓÚáéíóúñÑ]+)\s*(\d{4})?/);
@@ -677,13 +893,14 @@ function fechaFinalDelMes(mesTexto) {
   const ultimoDia = new Date(año, idx, 0).getDate();
   return `${String(ultimoDia).padStart(2,'0')}/${String(idx).padStart(2,'0')}/${año}`;
 }
-
 function imprimirResumen() {
   cambiarTab('resumen');
   setTimeout(() => window.print(), 100);
 }
 
+// ============================================================
 // IMPORTAR EXCEL
+// ============================================================
 function abrirImportExcel() {
   document.getElementById('paso1Excel').classList.remove('hidden');
   document.getElementById('paso2Preview').classList.add('hidden');
@@ -693,6 +910,7 @@ function abrirImportExcel() {
   viajesImportados = null;
   const modal = document.getElementById('modalImportExcel');
   modal.classList.remove('hidden'); modal.classList.add('flex');
+  modal.onclick = (e) => { if (e.target === modal) cerrarModalImport(); };
 }
 function cerrarModalImport() {
   const modal = document.getElementById('modalImportExcel');
@@ -756,10 +974,12 @@ function procesarWorkbook(workbook) {
       let fecha = '';
       if (dia && mes) fecha = `${añoActual}-${String(mes).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
       const tripulacion = [];
-      const chofer = limpiar(r[11]), enfermera = limpiar(r[12]), medico = limpiar(r[14]);
-      if (chofer) tripulacion.push(chofer);
-      if (enfermera) tripulacion.push(enfermera);
-      if (medico) tripulacion.push(medico);
+      const chofer = limpiar(r[11]).toUpperCase();
+      const enfermera = limpiar(r[12]).toUpperCase();
+      const medico = limpiar(r[14]).toUpperCase();
+      if (chofer) tripulacion.push({ nombre: chofer, rol: 'chofer' });
+      if (enfermera) tripulacion.push({ nombre: enfermera, rol: 'enfermera' });
+      if (medico) tripulacion.push({ nombre: medico, rol: 'medico' });
       viajes.push({ fecha, destino, mision, horaSalida, horaRegreso, tripulacion });
     }
     if (viajes.length > 0) break;
@@ -772,12 +992,10 @@ function procesarWorkbook(workbook) {
   viajesImportados._mes = mesDetectado ? `${nombresMeses[mesDetectado]} ${añoActual}` : '';
   viajesImportados._cuota = cuotaDetectada;
   viajesImportados._hoja = hojaUsada;
-
   document.getElementById('cantViajes').textContent = viajes.length;
   document.getElementById('hojaDetectada').textContent = hojaUsada;
   document.getElementById('mesDetectado').textContent = viajesImportados._mes || '—';
   document.getElementById('cuotaDetectada').textContent = cuotaDetectada ? formatearMoneda(cuotaDetectada) : '—';
-
   const tbody = document.getElementById('tbodyPreview');
   tbody.innerHTML = viajes.map(v => {
     const dias = calcularDias(v.horaSalida, v.horaRegreso);
@@ -791,7 +1009,11 @@ function procesarWorkbook(workbook) {
         <td class="px-2 py-1.5">${v.horaRegreso || '—'}</td>
         <td class="px-2 py-1.5 text-center">${dias}</td>
         <td class="px-2 py-1.5 text-right">${formatearMoneda(imp)}</td>
-        <td class="px-2 py-1.5">${v.tripulacion.map(t => `<span class="inline-block bg-gray-100 text-gray-700 rounded px-1.5 py-0.5 text-xs mr-1">${escapeHtml(t)}</span>`).join('')}</td>
+        <td class="px-2 py-1.5">${v.tripulacion.map(t => {
+          const info = ROLES[t.rol] || ROLES.chofer;
+          const svg = SVG_ROLES[t.rol] || SVG_ROLES.chofer;
+          return `<span class="chip ${info.chipClass}" style="font-size:.68rem;padding:1px 6px 1px 4px;margin:1px">${svg}${escapeHtml(t.nombre)}</span>`;
+        }).join('')}</td>
       </tr>
     `;
   }).join('');
@@ -812,7 +1034,9 @@ function confirmarImportExcel() {
   alert(`✅ Importados ${estado.viajes.length} viajes desde la hoja "${viajesImportados._hoja}".`);
 }
 
+// ============================================================
 // NORMALIZADORES
+// ============================================================
 function limpiar(v) { return (v === null || v === undefined) ? '' : String(v).trim(); }
 function toInt(v) { if (v === null || v === undefined || v === '') return 0; const n = parseInt(String(v).replace(/[^\d]/g, ''), 10); return isNaN(n) ? 0 : n; }
 function toNumber(v) {
@@ -840,12 +1064,13 @@ function normalizarHora(v) {
   return s;
 }
 
+// ============================================================
 // UTILIDADES
+// ============================================================
 function formatearMoneda(n) { return '$ ' + (n || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function formatearFecha(f) { if (!f) return '—'; const [y, m, d] = f.split('-'); if (!y || !m || !d) return f; return `${d}/${m}/${y}`; }
 function escapeHtml(s) { if (s === undefined || s === null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escapeAttr(s) { return escapeHtml(s); }
-
 function numeroALetras(num) {
   const enteroNum = Math.floor(num), centavos = Math.round((num - enteroNum) * 100);
   const UNIDADES = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE',
@@ -875,7 +1100,9 @@ function numeroALetras(num) {
   return r;
 }
 
+// ============================================================
 // EXPORTAR / IMPORTAR JSON
+// ============================================================
 function exportarJSON() {
   const data = JSON.stringify(estado, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
@@ -891,6 +1118,15 @@ function importarJSON(event) {
     try {
       const data = JSON.parse(e.target.result);
       if (!data.viajes) throw new Error('Formato inválido');
+      data.viajes.forEach(v => {
+        if (Array.isArray(v.tripulacion)) {
+          v.tripulacion = v.tripulacion.map(t => {
+            if (typeof t === 'string') return { nombre: t, rol: 'chofer' };
+            if (t && typeof t === 'object' && t.nombre) return t;
+            return null;
+          }).filter(Boolean);
+        }
+      });
       estado = data; guardar();
       document.getElementById('cfgMes').value = estado.mes || '';
       document.getElementById('cfgCuota').value = estado.cuota || '';
@@ -901,8 +1137,19 @@ function importarJSON(event) {
   reader.readAsText(file); event.target.value = '';
 }
 
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
 window.addEventListener('DOMContentLoaded', () => {
   cargar(); renderViajes(); renderRecibos(); renderResumen();
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modalT = document.getElementById('modalTripulacion');
+      const modalI = document.getElementById('modalImportExcel');
+      if (!modalT.classList.contains('hidden')) cerrarModalTrip();
+      else if (!modalI.classList.contains('hidden')) cerrarModalImport();
+    }
+  });
 });
 </script>
 
