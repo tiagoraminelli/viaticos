@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Viáticos - Hospital Julio César Villanueva</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50:'#FEF3F0',100:'#FDE4DE',200:'#FBC5B9',300:'#F79B87',400:'#F06A52',
+            500:'#E8452B',600:'#D32F1F',700:'#B02018',800:'#8E1A15',900:'#6F1512'
+          },
+          warm: {
+            50:'#FFF7ED',100:'#FFEDD5',200:'#FED7AA',300:'#FDBA74',400:'#FB923C',
+            500:'#F97316',600:'#EA580C',700:'#C2410C',800:'#9A3412',900:'#7C2D12'
+          }
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #F9FAFB; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .table-viajes input { width: 100%; font-size: .875rem; padding: 4px 8px; border: 1px solid #E5E7EB; border-radius: 6px; }
+  .table-viajes input:focus { outline: none; border-color: #E8452B; box-shadow: 0 0 0 3px rgba(232,69,43,.15); }
+  .chip { display: inline-flex; align-items: center; gap: 4px; background: #FDE4DE; color: #B02018; border-radius: 9999px; padding: 2px 10px; font-size: .75rem; margin: 2px; }
+  .chip button { border: none; background: none; color: #B02018; font-weight: 700; cursor: pointer; line-height: 1; }
+  .recibo { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #F3F4F6; }
+  .firma { margin-top: 60px; display: flex; justify-content: space-around; }
+  .firma div { border-top: 1px solid #9CA3AF; width: 200px; text-align: center; padding-top: 6px; font-size: .8rem; color: #6B7280; }
+  .resumen-tabla { width:100%; border-collapse: collapse; font-size: .875rem; }
+  .resumen-tabla th, .resumen-tabla td { border: 1px solid #9CA3AF; padding: 8px 10px; }
+  .resumen-tabla thead th { background: #F3F4F6; font-weight: 700; text-align: left; }
+  .resumen-tabla tfoot td { background: #FDE4DE; font-weight: 700; color: #8E1A15; }
+  .icon { width: 16px; height: 16px; display: inline-block; vertical-align: -3px; }
+  @media print {
+    body { background: #fff; }
+    .no-print { display: none !important; }
+    .recibo { page-break-after: always; box-shadow: none; padding: 0; border: none; }
+    .recibo:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-brand-700 via-brand-600 to-warm-500 shadow-lg no-print">
+  <div class="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-full bg-white/15 backdrop-blur flex items-center justify-center ring-2 ring-white/30">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+        </svg>
+      </div>
+      <div class="text-white">
+        <div class="text-base font-bold leading-tight">Hospital Julio César Villanueva</div>
+        <div class="text-xs text-white/80">Sistema de Viáticos — San Cristóbal</div>
+      </div>
+    </div>
+    <div class="flex gap-2">
+
+        
+        <!--BOTON-->
+        <a href="PRUEBA.xlsx" download="Plantilla_Viaticos.xlsx"
+   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/>
+    <line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+  Descargar plantilla
+</a>
+      <button onclick="abrirImportExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Importar Excel
+      </button>
+      <button onclick="exportarJSON()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Exportar
+      </button>
+      <button onclick="document.getElementById('inputImport').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 text-white backdrop-blur transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Importar JSON
+      </button>
+      <input type="file" id="inputImport" accept=".json" class="hidden" onchange="importarJSON(event)">
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-6">
+
+  <!-- CONFIG -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-5 no-print">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Mes / Año</label>
+        <input type="text" id="cfgMes" placeholder="Ej: Junio 2026" oninput="actualizarConfig()"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Cuota mensual ($)</label>
+        <input type="number" id="cfgCuota" placeholder="Ej: 86053" oninput="actualizarConfig()"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Regla de cálculo</label>
+        <input type="text" value="≥12hs → 1 día | <12hs → 0.5 día" disabled
+               class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-600">
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="flex border-b border-gray-200 mb-5 no-print">
+    <button id="btnTabViajes" onclick="cambiarTab('viajes')"
+            class="px-5 py-2.5 text-sm font-semibold border-b-2 border-brand-600 text-brand-700 -mb-px transition">
+      Viajes
+    </button>
+    <button id="btnTabRecibos" onclick="cambiarTab('recibos')"
+            class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 -mb-px transition">
+      Recibos
+    </button>
+    <button id="btnTabResumen" onclick="cambiarTab('resumen')"
+            class="px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 -mb-px transition">
+      Resumen
+    </button>
+  </div>
+
+  <!-- TAB VIAJES -->
+  <div id="tabViajes">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <h2 class="font-semibold text-gray-800">Carga de viajes</h2>
+        <button onclick="agregarViaje()"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar viaje
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full table-viajes">
+          <thead class="bg-gradient-to-r from-brand-600 to-warm-500 text-white text-xs uppercase tracking-wide">
+            <tr>
+              <th class="px-3 py-3 text-left font-semibold" style="width:120px">Fecha</th>
+              <th class="px-3 py-3 text-left font-semibold" style="width:140px">Destino</th>
+              <th class="px-3 py-3 text-left font-semibold" style="width:200px">Misión</th>
+              <th class="px-3 py-3 text-left font-semibold" style="width:110px">H. Salida</th>
+              <th class="px-3 py-3 text-left font-semibold" style="width:110px">H. Regreso</th>
+              <th class="px-3 py-3 text-center font-semibold" style="width:80px">Días</th>
+              <th class="px-3 py-3 text-right font-semibold" style="width:120px">Importe</th>
+              <th class="px-3 py-3 text-left font-semibold">Tripulación</th>
+              <th class="px-3 py-3 text-center font-semibold" style="width:60px"></th>
+            </tr>
+          </thead>
+          <tbody id="tbodyViajes" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+      <div id="emptyViajes" class="text-center py-16 text-gray-400 text-sm">
+        No hay viajes cargados. Usá <strong class="text-gray-600">"Agregar viaje"</strong> o <strong class="text-gray-600">"Importar Excel"</strong>.
+      </div>
+      <!-- RESUMEN DE MONTOS EN VIAJES -->
+      <div id="resumenViajes" class="hidden border-t-2 border-brand-100 bg-gradient-to-r from-brand-50 to-warm-50 px-5 py-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-brand-600">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/><rect x="9" y="2" width="6" height="9" rx="1"/></svg>
+            </div>
+            <div>
+              <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Cantidad de viajes</div>
+              <div id="totalViajes" class="text-xl font-bold text-gray-800">0</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-warm-600">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Total días</div>
+              <div id="totalDias" class="text-xl font-bold text-gray-800">0</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-brand-700">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div>
+              <div class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Total liquidado</div>
+              <div id="totalImporte" class="text-xl font-bold text-brand-700">$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB RECIBOS -->
+  <div id="tabRecibos" class="hidden">
+    <div class="flex items-center justify-between mb-4 no-print">
+      <h2 class="font-semibold text-gray-800 text-lg">Recibos generados</h2>
+      <button onclick="imprimirTodos()"
+              class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir todos
+      </button>
+    </div>
+    <div id="contenedorRecibos"></div>
+  </div>
+
+  <!-- TAB RESUMEN -->
+  <div id="tabResumen" class="hidden">
+    <div class="flex items-center justify-between mb-4 no-print">
+      <h2 class="font-semibold text-gray-800 text-lg">Relación de gastos</h2>
+      <button onclick="imprimirResumen()"
+              class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir resumen
+      </button>
+    </div>
+    <div id="contenedorResumen" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6"></div>
+  </div>
+
+</main>
+
+<!-- MODAL TRIPULACIÓN -->
+<div id="modalTripulacion" class="hidden fixed inset-0 z-50 items-center justify-center p-4" style="background: rgba(0,0,0,.5)">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+      <h3 class="font-semibold text-gray-800">Tripulación del viaje</h3>
+      <button onclick="cerrarModalTrip()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="p-5">
+      <div id="chipsTripulacion" class="mb-4 min-h-[40px]"></div>
+      <div class="flex gap-2">
+        <input type="text" id="inputNombreTrip" placeholder="Nombre del profesional"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();agregarTripulante();}"
+               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm">
+        <button onclick="agregarTripulante()"
+                class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition">
+          Agregar
+        </button>
+
+
+        
+      </div>
+      <p class="text-xs text-gray-500 mt-2">Presioná Enter o el botón para agregar.</p>
+    </div>
+    <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
+      <button onclick="cerrarModalTrip()" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORTAR EXCEL -->
+<div id="modalImportExcel" class="hidden fixed inset-0 z-50 items-center justify-center p-4" style="background: rgba(0,0,0,.5)">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+      <h3 class="font-semibold text-gray-800">Importar Excel de Viáticos</h3>
+      <button onclick="cerrarModalImport()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="p-5 overflow-y-auto flex-1">
+      <div id="paso1Excel">
+        <p class="text-sm text-gray-600 mb-3">Seleccioná el archivo <strong>.xlsx</strong>. El sistema busca automáticamente la tabla de viajes en cualquier hoja.</p>
+        <input type="file" id="inputExcel" accept=".xlsx,.xls" onchange="leerExcel(event)"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+        <div id="mensajeExcel" class="mt-3"></div>
+      </div>
+
+      <div id="paso2Preview" class="hidden">
+        <div class="bg-brand-50 border border-brand-200 rounded-lg p-3 mb-4 text-sm text-brand-900">
+          <strong>Vista previa:</strong> se detectaron <span id="cantViajes" class="font-bold">0</span> viajes en la hoja <strong id="hojaDetectada">—</strong>.
+          <br>Mes detectado: <strong id="mesDetectado">—</strong> | Cuota: <strong id="cuotaDetectada">—</strong>
+        </div>
+        <div class="max-h-[400px] overflow-auto border border-gray-200 rounded-lg">
+          <table class="w-full text-xs">
+            <thead class="bg-gray-50 sticky top-0">
+              <tr>
+                <th class="px-2 py-2 text-left font-semibold text-gray-700">Fecha</th>
+                <th class="px-2 py-2 text-left font-semibold text-gray-700">Destino</th>
+                <th class="px-2 py-2 text-left font-semibold text-gray-700">Misión</th>
+                <th class="px-2 py-2 text-left font-semibold text-gray-700">Salida</th>
+                <th class="px-2 py-2 text-left font-semibold text-gray-700">Regreso</th>
+                <th class="px-2 py-2 text-center font-semibold text-gray-700">Días</th>
+                <th class="px-2 py-2 text-right font-semibold text-gray-700">Importe</th>
+                <th class="px-2 py-2 text-left font-semibold text-gray-700">Tripulación</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyPreview" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="px-5 py-3 border-t border-gray-100 flex justify-end gap-2">
+      <button onclick="cerrarModalImport()" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition">Cancelar</button>
+      <button id="btnConfirmarImport" onclick="confirmarImportExcel()"
+              class="hidden px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-warm-500 hover:from-brand-700 hover:to-warm-600 text-white shadow-sm transition">
+        Confirmar importación
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+let estado = { mes: "", cuota: 0, viajes: [] };
+let viajeEditandoTrip = null;
+let viajesImportados = null;
+const nombresMeses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+function guardar() { localStorage.setItem('viaticos_estado', JSON.stringify(estado)); }
+function cargar() {
+  const raw = localStorage.getItem('viaticos_estado');
+  if (raw) { try { estado = JSON.parse(raw); } catch(e) {} }
+  document.getElementById('cfgMes').value = estado.mes || '';
+  document.getElementById('cfgCuota').value = estado.cuota || '';
+}
+
+// TABS
+function cambiarTab(tab) {
+  const btnV = document.getElementById('btnTabViajes');
+  const btnR = document.getElementById('btnTabRecibos');
+  const btnS = document.getElementById('btnTabResumen');
+  const tabV = document.getElementById('tabViajes');
+  const tabR = document.getElementById('tabRecibos');
+  const tabS = document.getElementById('tabResumen');
+  const activo = 'px-5 py-2.5 text-sm font-semibold border-b-2 border-brand-600 text-brand-700 -mb-px transition';
+  const inactivo = 'px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 -mb-px transition';
+  btnV.className = inactivo; btnR.className = inactivo; btnS.className = inactivo;
+  tabV.classList.add('hidden'); tabR.classList.add('hidden'); tabS.classList.add('hidden');
+  if (tab === 'viajes') { btnV.className = activo; tabV.classList.remove('hidden'); }
+  else if (tab === 'recibos') { btnR.className = activo; tabR.classList.remove('hidden'); renderRecibos(); }
+  else { btnS.className = activo; tabS.classList.remove('hidden'); renderResumen(); }
+}
+
+function actualizarConfig() {
+  estado.mes = document.getElementById('cfgMes').value.trim();
+  estado.cuota = parseFloat(document.getElementById('cfgCuota').value) || 0;
+  guardar(); renderViajes(); renderRecibos(); renderResumen();
+}
+
+function calcularDias(horaSalida, horaRegreso) {
+  if (!horaSalida || !horaRegreso) return 0;
+  const [hS, mS] = horaSalida.split(':').map(Number);
+  const [hR, mR] = horaRegreso.split(':').map(Number);
+  if (isNaN(hS) || isNaN(mS) || isNaN(hR) || isNaN(mR)) return 0;
+  let minutos = (hR * 60 + mR) - (hS * 60 + mS);
+  if (minutos < 0) minutos += 24 * 60;
+  return (minutos / 60) >= 12 ? 1 : 0.5;
+}
+function calcularImporte(dias) { return (estado.cuota || 0) * dias; }
+
+function agregarViaje() {
+  estado.viajes.push({ fecha:'', destino:'', mision:'', horaSalida:'', horaRegreso:'', tripulacion:[] });
+  guardar(); renderViajes();
+  setTimeout(() => {
+    const filas = document.querySelectorAll('#tbodyViajes tr');
+    const ultima = filas[filas.length - 1];
+    if (ultima) ultima.querySelector('input')?.focus();
+  }, 50);
+}
+
+function eliminarViaje(idx) {
+  if (!confirm('¿Eliminar este viaje?')) return;
+  estado.viajes.splice(idx, 1);
+  guardar(); renderViajes(); renderRecibos(); renderResumen();
+}
+
+function actualizarCampo(idx, campo, valor) {
+  estado.viajes[idx][campo] = valor;
+  guardar();
+  const fila = document.querySelector(`#tbodyViajes tr[data-idx="${idx}"]`);
+  if (fila) {
+    const dias = calcularDias(estado.viajes[idx].horaSalida, estado.viajes[idx].horaRegreso);
+    const imp = calcularImporte(dias);
+    const celdaDias = fila.querySelector('.celda-dias');
+    const celdaImp = fila.querySelector('.celda-importe');
+    if (celdaDias) {
+      celdaDias.textContent = dias || '—';
+      celdaDias.className = 'celda-dias text-center font-bold ' + (dias === 1 ? 'text-green-600' : dias === 0.5 ? 'text-warm-600' : 'text-gray-400');
+    }
+    if (celdaImp) celdaImp.textContent = imp ? formatearMoneda(imp) : '—';
+  }
+  actualizarResumenViajes();
+  renderRecibos(); renderResumen();
+}
+
+function renderViajes() {
+  const tbody = document.getElementById('tbodyViajes');
+  const empty = document.getElementById('emptyViajes');
+  const resumen = document.getElementById('resumenViajes');
+  tbody.innerHTML = '';
+  if (estado.viajes.length === 0) {
+    empty.classList.remove('hidden');
+    resumen.classList.add('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  resumen.classList.remove('hidden');
+  estado.viajes.forEach((v, idx) => {
+    const dias = calcularDias(v.horaSalida, v.horaRegreso);
+    const imp = calcularImporte(dias);
+    const tr = document.createElement('tr');
+    tr.dataset.idx = idx;
+    tr.className = 'hover:bg-brand-50/40 transition';
+    tr.innerHTML = `
+      <td class="px-3 py-2"><input type="date" value="${v.fecha}" onchange="actualizarCampo(${idx},'fecha',this.value)"></td>
+      <td class="px-3 py-2"><input type="text" value="${escapeAttr(v.destino)}" onchange="actualizarCampo(${idx},'destino',this.value)" placeholder="Destino"></td>
+      <td class="px-3 py-2"><input type="text" value="${escapeAttr(v.mision)}" onchange="actualizarCampo(${idx},'mision',this.value)" placeholder="Misión"></td>
+      <td class="px-3 py-2"><input type="time" value="${v.horaSalida}" onchange="actualizarCampo(${idx},'horaSalida',this.value)"></td>
+      <td class="px-3 py-2"><input type="time" value="${v.horaRegreso}" onchange="actualizarCampo(${idx},'horaRegreso',this.value)"></td>
+      <td class="celda-dias px-3 py-2 text-center font-bold ${dias === 1 ? 'text-green-600' : dias === 0.5 ? 'text-warm-600' : 'text-gray-400'}">${dias || '—'}</td>
+      <td class="celda-importe px-3 py-2 text-right font-medium text-gray-700">${imp ? formatearMoneda(imp) : '—'}</td>
+      <td class="px-3 py-2">
+        <div class="flex flex-wrap items-center gap-1">
+          ${v.tripulacion.map((n, i) => `<span class="chip">${escapeHtml(n)} <button onclick="quitarTripulante(${idx},${i})">×</button></span>`).join('')}
+          <button onclick="abrirModalTripulacion(${idx})" class="w-7 h-7 rounded-full bg-brand-100 hover:bg-brand-200 text-brand-700 font-bold text-sm transition" title="Agregar tripulante">+</button>
+        </div>
+      </td>
+      <td class="px-3 py-2 text-center">
+        <button onclick="eliminarViaje(${idx})" class="w-8 h-8 rounded-lg hover:bg-red-50 text-red-500 transition inline-flex items-center justify-center" title="Eliminar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  actualizarResumenViajes();
+}
+
+function actualizarResumenViajes() {
+  let totalDias = 0, totalImporte = 0;
+  estado.viajes.forEach(v => {
+    const d = calcularDias(v.horaSalida, v.horaRegreso);
+    totalDias += d;
+    totalImporte += calcularImporte(d);
+  });
+  document.getElementById('totalViajes').textContent = estado.viajes.length;
+  document.getElementById('totalDias').textContent = totalDias;
+  document.getElementById('totalImporte').textContent = formatearMoneda(totalImporte);
+}
+
+// TRIPULACIÓN
+function abrirModalTripulacion(idx) {
+  viajeEditandoTrip = idx;
+  renderChipsTripulacion();
+  document.getElementById('inputNombreTrip').value = '';
+  const modal = document.getElementById('modalTripulacion');
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+  setTimeout(() => document.getElementById('inputNombreTrip').focus(), 100);
+}
+function cerrarModalTrip() {
+  const modal = document.getElementById('modalTripulacion');
+  modal.classList.add('hidden'); modal.classList.remove('flex');
+  viajeEditandoTrip = null;
+}
+function renderChipsTripulacion() {
+  const cont = document.getElementById('chipsTripulacion');
+  const trip = estado.viajes[viajeEditandoTrip]?.tripulacion || [];
+  if (trip.length === 0) { cont.innerHTML = '<span class="text-gray-400 text-sm">Sin tripulantes aún.</span>'; return; }
+  cont.innerHTML = trip.map((n, i) => `<span class="chip" style="font-size:.85rem;padding:4px 12px">${escapeHtml(n)} <button onclick="quitarTripulante(${viajeEditandoTrip},${i},true)">×</button></span>`).join('');
+}
+function agregarTripulante() {
+  const input = document.getElementById('inputNombreTrip');
+  const nombre = input.value.trim();
+  if (!nombre || viajeEditandoTrip === null) return;
+  estado.viajes[viajeEditandoTrip].tripulacion.push(nombre);
+  input.value = ''; input.focus();
+  guardar(); renderChipsTripulacion(); renderViajes(); renderRecibos(); renderResumen();
+}
+function quitarTripulante(idx, i, desdeModal) {
+  estado.viajes[idx].tripulacion.splice(i, 1);
+  guardar();
+  if (desdeModal) renderChipsTripulacion();
+  renderViajes(); renderRecibos(); renderResumen();
+}
+
+// AGRUPAR POR PROFESIONAL
+function agruparPorProfesional() {
+  const porProfesional = {};
+  estado.viajes.forEach(v => {
+    const dias = calcularDias(v.horaSalida, v.horaRegreso);
+    const imp = calcularImporte(dias);
+    (v.tripulacion || []).forEach(nombre => {
+      if (!porProfesional[nombre]) porProfesional[nombre] = [];
+      porProfesional[nombre].push({ ...v, dias, importe: imp });
+    });
+  });
+  return porProfesional;
+}
+
+// RECIBOS
+function renderRecibos() {
+  const cont = document.getElementById('contenedorRecibos');
+  cont.innerHTML = '';
+  const porProfesional = agruparPorProfesional();
+  const nombres = Object.keys(porProfesional).sort();
+  if (nombres.length === 0) {
+    cont.innerHTML = '<div class="text-center py-16 text-gray-400 text-sm bg-white rounded-xl border border-gray-100">No hay recibos para mostrar. Cargá viajes y asigná tripulación.</div>';
+    return;
+  }
+  nombres.forEach(nombre => {
+    const viajes = porProfesional[nombre];
+    const total = viajes.reduce((s, v) => s + v.importe, 0);
+    const recibo = document.createElement('div');
+    recibo.className = 'recibo';
+    recibo.innerHTML = `
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 class="text-lg font-bold text-brand-700 mb-1 border-b-2 border-brand-600 pb-2 inline-block">RECIBO DE VIÁTICOS</h3>
+          <div class="text-sm text-gray-700 mt-1"><strong>Hospital Julio César Villanueva</strong> — San Cristóbal</div>
+          <div class="text-xs text-gray-500">Período: ${escapeHtml(estado.mes || '—')}</div>
+        </div>
+        <button onclick="imprimirRecibo(this)" class="no-print inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir
+        </button>
+      </div>
+      <div class="mb-4 text-sm">
+        <div><strong>Profesional:</strong> ${escapeHtml(nombre)}</div>
+        <div><strong>Cuota:</strong> ${formatearMoneda(estado.cuota)}</div>
+      </div>
+      <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+        <thead class="bg-gradient-to-r from-brand-600 to-warm-500 text-white text-xs uppercase">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">Fecha</th>
+            <th class="px-3 py-2 text-left font-semibold">Destino</th>
+            <th class="px-3 py-2 text-left font-semibold">Misión</th>
+            <th class="px-3 py-2 text-left font-semibold">Salida</th>
+            <th class="px-3 py-2 text-left font-semibold">Regreso</th>
+            <th class="px-3 py-2 text-center font-semibold">Días</th>
+            <th class="px-3 py-2 text-right font-semibold">Importe</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          ${viajes.map(v => `
+            <tr class="hover:bg-brand-50/30">
+              <td class="px-3 py-2">${formatearFecha(v.fecha)}</td>
+              <td class="px-3 py-2">${escapeHtml(v.destino)}</td>
+              <td class="px-3 py-2">${escapeHtml(v.mision)}</td>
+              <td class="px-3 py-2">${v.horaSalida || '—'}</td>
+              <td class="px-3 py-2">${v.horaRegreso || '—'}</td>
+              <td class="px-3 py-2 text-center font-medium">${v.dias}</td>
+              <td class="px-3 py-2 text-right font-medium">${formatearMoneda(v.importe)}</td>
+            </tr>
+          `).join('')}
+          <tr class="bg-brand-50 font-bold">
+            <td colspan="6" class="px-3 py-2 text-right text-brand-800">TOTAL</td>
+            <td class="px-3 py-2 text-right text-brand-800">${formatearMoneda(total)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-4 p-3 bg-warm-50 border-l-4 border-warm-500 text-sm italic text-gray-700 rounded">
+        SON PESOS: ${numeroALetras(total)}
+      </div>
+      <div class="firma">
+        <div>Firma Superior</div>
+        <div>Firma Empleado</div>
+      </div>
+    `;
+    cont.appendChild(recibo);
+  });
+}
+
+function imprimirRecibo(btn) {
+  const recibo = btn.closest('.recibo');
+  const original = document.body.innerHTML;
+  document.body.innerHTML = recibo.outerHTML;
+  window.print();
+  document.body.innerHTML = original;
+  location.reload();
+}
+function imprimirTodos() { window.print(); }
+
+// RESUMEN
+function renderResumen() {
+  const cont = document.getElementById('contenedorResumen');
+  const porProfesional = agruparPorProfesional();
+  const nombres = Object.keys(porProfesional).sort();
+
+  if (nombres.length === 0) {
+    cont.innerHTML = '<div class="text-center py-16 text-gray-400 text-sm">No hay datos para mostrar en el resumen. Cargá viajes y asigná tripulación.</div>';
+    return;
+  }
+
+  const fechaStr = fechaFinalDelMes(estado.mes);
+  const periodo = estado.mes ? `Viáticos ${estado.mes.toUpperCase()}` : 'Viáticos —';
+  let totalGeneral = 0;
+
+  const filas = nombres.map(nombre => {
+    const total = porProfesional[nombre].reduce((s, v) => s + v.importe, 0);
+    totalGeneral += total;
+    return `
+      <tr>
+        <td>${escapeHtml(nombre)}</td>
+        <td>${fechaStr}</td>
+        <td>Planilla de viáticos</td>
+        <td></td>
+        <td></td>
+        <td class="text-right">${formatearMoneda(total)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  cont.innerHTML = `
+    <div class="overflow-x-auto">
+      <table class="resumen-tabla">
+        <thead>
+          <tr>
+            <th colspan="6" class="text-center text-sm" style="background:#fff;border:none;padding-bottom:12px;font-size:1rem;">
+              RELACIÓN DE GASTOS PARA HOSPITAL JULIO CÉSAR VILLANUEVA
+            </th>
+          </tr>
+          <tr>
+            <th colspan="2" style="width:33%">DE SAN CRISTÓBAL</th>
+            <th colspan="2" style="width:33%">PARTIDA PARCIAL</th>
+            <th colspan="2" style="width:34%"></th>
+          </tr>
+          <tr>
+            <td>Racionamiento</td>
+            <td></td>
+            <td rowspan="3"></td>
+            <td rowspan="3"></td>
+            <td rowspan="3" colspan="2" class="text-center align-middle"><strong>${periodo}</strong></td>
+          </tr>
+          <tr>
+            <td>Bienes</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Servicios</td>
+            <td class="text-center"><strong>X</strong></td>
+          </tr>
+          <tr>
+            <th style="background:#F3F4F6">PROVEEDOR</th>
+            <th style="background:#F3F4F6">FECHA</th>
+            <th style="background:#F3F4F6">COMPROBANTE</th>
+            <th style="background:#F3F4F6">NRO.CHEQUE</th>
+            <th style="background:#F3F4F6">FOLIO</th>
+            <th style="background:#F3F4F6;text-align:right">IMPORTE</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filas}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="5" class="text-right">TOTAL</td>
+            <td class="text-right">${formatearMoneda(totalGeneral)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="mt-6 flex justify-end pr-6">
+      <div class="text-center text-xs text-gray-500">
+        <div class="border-t border-gray-400 pt-1 mt-12 w-48">Firma Superior</div>
+      </div>
+    </div>
+  `;
+}
+
+function fechaFinalDelMes(mesTexto) {
+  if (!mesTexto) return '';
+  const m = mesTexto.match(/([A-Za-zÁÉÍÓÚáéíóúñÑ]+)\s*(\d{4})?/);
+  if (!m) return '';
+  const mesNombre = m[1].toLowerCase();
+  const año = m[2] ? parseInt(m[2]) : new Date().getFullYear();
+  const idx = nombresMeses.findIndex(n => n.toLowerCase() === mesNombre);
+  if (idx <= 0) return '';
+  const ultimoDia = new Date(año, idx, 0).getDate();
+  return `${String(ultimoDia).padStart(2,'0')}/${String(idx).padStart(2,'0')}/${año}`;
+}
+
+function imprimirResumen() {
+  cambiarTab('resumen');
+  setTimeout(() => window.print(), 100);
+}
+
+// IMPORTAR EXCEL
+function abrirImportExcel() {
+  document.getElementById('paso1Excel').classList.remove('hidden');
+  document.getElementById('paso2Preview').classList.add('hidden');
+  document.getElementById('btnConfirmarImport').classList.add('hidden');
+  document.getElementById('inputExcel').value = '';
+  document.getElementById('mensajeExcel').innerHTML = '';
+  viajesImportados = null;
+  const modal = document.getElementById('modalImportExcel');
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+}
+function cerrarModalImport() {
+  const modal = document.getElementById('modalImportExcel');
+  modal.classList.add('hidden'); modal.classList.remove('flex');
+}
+function leerExcel(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const msg = document.getElementById('mensajeExcel');
+  msg.innerHTML = '<div class="text-sm text-gray-600">Leyendo archivo...</div>';
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      procesarWorkbook(workbook);
+    } catch (err) {
+      msg.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">Error al leer el archivo: ${err.message}</div>`;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function normalizarTexto(s) {
+  return String(s || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+function procesarWorkbook(workbook) {
+  const msg = document.getElementById('mensajeExcel');
+  const añoActual = new Date().getFullYear();
+  let viajes = [], cuotaDetectada = 0, mesDetectado = 0, hojaUsada = '';
+  for (const nombreHoja of workbook.SheetNames) {
+    const sheet = workbook.Sheets[nombreHoja];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+    if (!rows || rows.length === 0) continue;
+    let headerRowIdx = -1;
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r) continue;
+      const joined = r.map(c => normalizarTexto(c)).join('|');
+      if (joined.includes('DESTINO') && joined.includes('MISION')) { headerRowIdx = i; break; }
+    }
+    if (headerRowIdx === -1) continue;
+    hojaUsada = nombreHoja;
+    let startIdx = headerRowIdx + 1;
+    const subRow = rows[startIdx];
+    if (subRow) {
+      const subJoined = subRow.map(c => normalizarTexto(c)).join('|');
+      if (subJoined.includes('DIA') && subJoined.includes('HORA')) startIdx++;
+    }
+    for (let i = startIdx; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r) continue;
+      const destino = limpiar(r[0]), mision = limpiar(r[1]);
+      if (!destino && !mision) continue;
+      const textoFila = normalizarTexto(destino + ' ' + mision);
+      if (textoFila.includes('TOTAL') || textoFila.includes('SON PESOS')) break;
+      const dia = toInt(r[2]), mes = toInt(r[3]);
+      const horaSalida = normalizarHora(r[4]), horaRegreso = normalizarHora(r[7]);
+      const cuota = toNumber(r[9]);
+      if (cuota && !cuotaDetectada) cuotaDetectada = cuota;
+      if (mes && !mesDetectado) mesDetectado = mes;
+      let fecha = '';
+      if (dia && mes) fecha = `${añoActual}-${String(mes).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+      const tripulacion = [];
+      const chofer = limpiar(r[11]), enfermera = limpiar(r[12]), medico = limpiar(r[14]);
+      if (chofer) tripulacion.push(chofer);
+      if (enfermera) tripulacion.push(enfermera);
+      if (medico) tripulacion.push(medico);
+      viajes.push({ fecha, destino, mision, horaSalida, horaRegreso, tripulacion });
+    }
+    if (viajes.length > 0) break;
+  }
+  if (viajes.length === 0) {
+    msg.innerHTML = `<div class="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-3 text-sm">No se encontró la tabla con los encabezados <strong>DESTINO</strong> y <strong>MISIÓN</strong>. Hojas revisadas: <em>${workbook.SheetNames.join(', ')}</em></div>`;
+    return;
+  }
+  viajesImportados = viajes;
+  viajesImportados._mes = mesDetectado ? `${nombresMeses[mesDetectado]} ${añoActual}` : '';
+  viajesImportados._cuota = cuotaDetectada;
+  viajesImportados._hoja = hojaUsada;
+
+  document.getElementById('cantViajes').textContent = viajes.length;
+  document.getElementById('hojaDetectada').textContent = hojaUsada;
+  document.getElementById('mesDetectado').textContent = viajesImportados._mes || '—';
+  document.getElementById('cuotaDetectada').textContent = cuotaDetectada ? formatearMoneda(cuotaDetectada) : '—';
+
+  const tbody = document.getElementById('tbodyPreview');
+  tbody.innerHTML = viajes.map(v => {
+    const dias = calcularDias(v.horaSalida, v.horaRegreso);
+    const imp = (cuotaDetectada || 0) * dias;
+    return `
+      <tr class="hover:bg-brand-50/30">
+        <td class="px-2 py-1.5">${formatearFecha(v.fecha)}</td>
+        <td class="px-2 py-1.5">${escapeHtml(v.destino)}</td>
+        <td class="px-2 py-1.5">${escapeHtml(v.mision)}</td>
+        <td class="px-2 py-1.5">${v.horaSalida || '—'}</td>
+        <td class="px-2 py-1.5">${v.horaRegreso || '—'}</td>
+        <td class="px-2 py-1.5 text-center">${dias}</td>
+        <td class="px-2 py-1.5 text-right">${formatearMoneda(imp)}</td>
+        <td class="px-2 py-1.5">${v.tripulacion.map(t => `<span class="inline-block bg-gray-100 text-gray-700 rounded px-1.5 py-0.5 text-xs mr-1">${escapeHtml(t)}</span>`).join('')}</td>
+      </tr>
+    `;
+  }).join('');
+  document.getElementById('paso1Excel').classList.add('hidden');
+  document.getElementById('paso2Preview').classList.remove('hidden');
+  document.getElementById('btnConfirmarImport').classList.remove('hidden');
+}
+function confirmarImportExcel() {
+  if (!viajesImportados) return;
+  estado.viajes = viajesImportados.map(v => ({
+    fecha: v.fecha, destino: v.destino, mision: v.mision,
+    horaSalida: v.horaSalida, horaRegreso: v.horaRegreso, tripulacion: v.tripulacion
+  }));
+  if (viajesImportados._cuota) { estado.cuota = viajesImportados._cuota; document.getElementById('cfgCuota').value = estado.cuota; }
+  if (viajesImportados._mes) { estado.mes = viajesImportados._mes; document.getElementById('cfgMes').value = estado.mes; }
+  guardar(); renderViajes(); renderRecibos(); renderResumen();
+  cerrarModalImport();
+  alert(`✅ Importados ${estado.viajes.length} viajes desde la hoja "${viajesImportados._hoja}".`);
+}
+
+// NORMALIZADORES
+function limpiar(v) { return (v === null || v === undefined) ? '' : String(v).trim(); }
+function toInt(v) { if (v === null || v === undefined || v === '') return 0; const n = parseInt(String(v).replace(/[^\d]/g, ''), 10); return isNaN(n) ? 0 : n; }
+function toNumber(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  if (typeof v === 'number') return v;
+  let s = String(v).replace(/\$/g, '').replace(/\s/g, '').trim();
+  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (s.includes(',')) s = s.replace(',', '.');
+  const n = parseFloat(s); return isNaN(n) ? 0 : n;
+}
+function normalizarHora(v) {
+  if (v === null || v === undefined || v === '') return '';
+  if (typeof v === 'number') {
+    if (v >= 0 && v < 1) {
+      const totalMin = Math.round(v * 24 * 60);
+      const h = Math.floor(totalMin / 60) % 24, m = totalMin % 60;
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    }
+    return normalizarHora(String(v));
+  }
+  let s = String(v).trim().replace(',', '.');
+  if (/^\d{1,2}:\d{2}$/.test(s)) { const [h, m] = s.split(':'); return `${String(parseInt(h)).padStart(2,'0')}:${String(parseInt(m)).padStart(2,'0')}`; }
+  if (/^\d{1,2}\.\d{1,2}$/.test(s)) { const [h, m] = s.split('.'); const hh = String(parseInt(h)).padStart(2,'0'); const mm = String(m.length === 1 ? parseInt(m)*10 : parseInt(m)).padStart(2,'0'); return `${hh}:${mm}`; }
+  if (/^\d{1,2}$/.test(s)) return `${String(parseInt(s)).padStart(2,'0')}:00`;
+  return s;
+}
+
+// UTILIDADES
+function formatearMoneda(n) { return '$ ' + (n || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function formatearFecha(f) { if (!f) return '—'; const [y, m, d] = f.split('-'); if (!y || !m || !d) return f; return `${d}/${m}/${y}`; }
+function escapeHtml(s) { if (s === undefined || s === null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s) { return escapeHtml(s); }
+
+function numeroALetras(num) {
+  const enteroNum = Math.floor(num), centavos = Math.round((num - enteroNum) * 100);
+  const UNIDADES = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE',
+    'DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISÉIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE',
+    'VEINTE', 'VEINTIUNO', 'VEINTIDÓS', 'VEINTITRÉS', 'VEINTICUATRO', 'VEINTICINCO', 'VEINTISÉIS', 'VEINTISIETE', 'VEINTIOCHO', 'VEINTINUEVE'];
+  const DECENAS = ['', '', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
+  const CENTENAS = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+  function grupo(n) {
+    if (n === 0) return ''; if (n === 100) return 'CIEN';
+    let o = ''; const c = Math.floor(n / 100), r = n % 100;
+    if (c > 0) o += CENTENAS[c] + ' ';
+    if (r < 30) o += UNIDADES[r];
+    else { const d = Math.floor(r / 10), u = r % 10; o += DECENAS[d]; if (u > 0) o += ' Y ' + UNIDADES[u]; }
+    return o.trim();
+  }
+  function convertir(n) {
+    if (n === 0) return 'CERO';
+    let o = ''; const mill = Math.floor(n / 1000000), mil = Math.floor((n % 1000000) / 1000), resto = n % 1000;
+    if (mill > 0) o += (mill === 1 ? 'UN MILLÓN ' : grupo(mill) + ' MILLONES ');
+    if (mil > 0) o += (mil === 1 ? 'MIL ' : grupo(mil) + ' MIL ');
+    if (resto > 0) o += grupo(resto);
+    return o.trim();
+  }
+  let r = convertir(enteroNum);
+  if (centavos > 0) r += ` CON ${String(centavos).padStart(2,'0')}/100`;
+  else r += ' C/00 CTVOS';
+  return r;
+}
+
+// EXPORTAR / IMPORTAR JSON
+function exportarJSON() {
+  const data = JSON.stringify(estado, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `viaticos_${(estado.mes || 'sin_mes').replace(/\s+/g, '_')}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+function importarJSON(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.viajes) throw new Error('Formato inválido');
+      estado = data; guardar();
+      document.getElementById('cfgMes').value = estado.mes || '';
+      document.getElementById('cfgCuota').value = estado.cuota || '';
+      renderViajes(); renderRecibos(); renderResumen();
+      alert('Datos importados correctamente.');
+    } catch(err) { alert('Error al importar: ' + err.message); }
+  };
+  reader.readAsText(file); event.target.value = '';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  cargar(); renderViajes(); renderRecibos(); renderResumen();
+});
+</script>
+
+</body>
+</html>
